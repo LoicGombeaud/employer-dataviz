@@ -30,6 +30,11 @@ def detail(request, employer_id):
     }
     return render(request, "employers/detail.html", context)
 
+def get_employer_by_site_id(request, site_id):
+    site = get_object_or_404(Site, id=site_id)
+    return get_object_or_404(Employer, id=site.employer.id)
+
+@permission_required("employers.view_employer", fn=get_employer_by_site_id)
 def site(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     try:
