@@ -1,7 +1,7 @@
 <p>Site {{ site.employer.name }} : {{ site.name }}, {{ site.address }}</p>
 
 <p>Statistiques distances</p>
-{% include "partials/distance_stats.html" with distance_stats=site.get_distance_stats() %}
+{% include "partials/distance_stats.html" with distance_stats=site.get_distance_stats %}
 
 <p>Affichage carte </p>
-{% include "partials/map.html" with map_data=site.get_map_data() %}
+{% include "partials/map.html" with map_data=site.get_map_data %}
