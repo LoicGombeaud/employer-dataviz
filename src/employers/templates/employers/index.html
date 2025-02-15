@@ -1,9 +1,12 @@
-{% if employers_list %}
+{% if territory_to_employers_dict %}
+    {% for territory, employers_list in territory_to_employers_dict.items %}
+    <p>{{ territory.name }}</p>
     <ul>
     {% for employer in employers_list %}
         <li><a href="{% url 'employers:detail' employer.id %}">{{ employer.name }}</a></li>
     {% endfor %}
     </ul>
+    {% endfor %}
 {% else %}
     <p>No employers (yet?)</p>
 {% endif %}
