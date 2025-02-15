@@ -1,15 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-
-class Territory(models.Model):
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name_plural = "territories"
-
-    def __str__(self):
-        return self.name
+from employers.models import Address, Territory
 
 class Employer(models.Model):
     name = models.CharField(max_length=100)
@@ -23,30 +13,6 @@ class Employer(models.Model):
 
     def get_map_data(self):
         return "TODO"
-
-class EmployerLiaison(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.employer) + " - " + str(self.user)
-
-class TerritoryLiaison(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    territory = models.ForeignKey(Territory, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.territory) + " - " + str(self.user)
-
-class Address(models.Model):
-    street_address = models.CharField(max_length=100,
-                                      primary_key=True)
-
-    class Meta:
-        verbose_name_plural = "addresses"
-
-    def __str__(self):
-        return self.street_address
 
 class Site(models.Model):
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)
@@ -63,6 +29,7 @@ class Site(models.Model):
             employee, created = Employee.objects.get_or_create(site=self,
                                                                address=address)
             self.employee_set.add(employee)
+
 
 class Employee(models.Model):
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
