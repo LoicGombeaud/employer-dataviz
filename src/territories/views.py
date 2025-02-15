@@ -1,3 +1,10 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+def index(request):
+    #TODO
+    return
+
+def detail(request):
+    #TODO
+    return
