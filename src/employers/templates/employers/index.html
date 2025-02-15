@@ -1,0 +1,9 @@
+{% if employers_list %}
+    <ul>
+    {% for employer in employers_list %}
+        <li><a href="{% url 'employers:detail' employer.id %}">{{ employer.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No employers (yet?)</p>
+{% endif %}

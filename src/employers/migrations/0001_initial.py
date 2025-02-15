@@ -31,16 +31,16 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employer_management.address')),
-                ('employer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employer_management.employer')),
+                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employers.address')),
+                ('employer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employers.employer')),
             ],
         ),
         migrations.CreateModel(
             name='Employee',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employer_management.address')),
-                ('employer_site', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employer_management.employersite')),
+                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employers.address')),
+                ('employer_site', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='employers.employersite')),
             ],
         ),
     ]
