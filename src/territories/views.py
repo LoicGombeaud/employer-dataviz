@@ -2,9 +2,7 @@ from django.shortcuts import render
 
 
 def index(request):
-    #TODO
-    return
+    return render(request, "base.html")
 
 def detail(request):
-    #TODO
-    return
+    return render(request, "base.html")

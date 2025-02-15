@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import include, path
 
+from . import views
+
 urlpatterns = [
+    path("", views.index, name="homepage"),
     path("employers/", include("employers.urls")),
     path("territories/", include("territories.urls")),
     path("admin/", admin.site.urls),

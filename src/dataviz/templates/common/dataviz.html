@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load l10n %}
+
+{% block head %}
+  {{ block.super }}
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+        crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+          integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+          crossorigin="">
+  </script>
+  <style>
+      #map { width: 800px; height: 600px; }
+      body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
+      .ghbtns { position: relative; top: 4px; margin-left: 5px; }
+      a { color: #0077ff; }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+
+  {% block entity %}
+  {% endblock %}
+
+  {% block distance_stats %}
+    <p>Statistiques distances</p>
+    <p>À vol d'oiseau : {{ direct_distances }}</p>
+    <p>À vélo : {{ cycling_distances}}</p>
+  {% endblock %}
+
+  {% block map %}
+    <div id="map"></div>
+    <script src="{% static "scripts/simpleheat.js" %}"></script>
+    <script src="{% static "scripts/leaflet-heat.js" %}"></script>
+    <script>
+      {% autoescape off %}
+      var map = L.map('map')
+                 .setView(
+                 [
+                   {{ map_data.map_center.latitude | unlocalize }},
+                   {{ map_data.map_center.longitude | unlocalize }}
+                 ],
+                 14);
+
+      var routePointCoordinates = {{ map_data.route_polyline_point_coordinates }};
+      var employeeAddressPointCoordinates = {{ map_data.employee_address_point_coordinates }};
+      {% endautoescape %}
+
+      var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      var heatmapOptions = {
+          'radius': 10,
+          'blur': 10,
+          'max': employeeAddressPointCoordinates.length
+      };
+      var heat = L.heatLayer(
+        routePointCoordinates,
+        heatmapOptions
+      ).addTo(map);
+
+      {% for marker in map_data.markers %}
+        L.marker(
+          [
+            {{ marker.latitude | unlocalize }},
+            {{ marker.longitude | unlocalize }}
+          ]).addTo(map);
+      {% endfor %}
+
+      circleMarkerOptions = {
+        'radius': 1,
+        'color': 'red'
+      };
+      {% for coordinates in map_data.employee_address_point_coordinates %}
+        L.circleMarker(
+          [
+            {{ coordinates.0 | unlocalize }},
+            {{ coordinates.1 | unlocalize }}
+          ],
+        circleMarkerOptions).addTo(map)
+      {% endfor %}
+    </script>
+  {% endblock %}
+
+{% endblock %}

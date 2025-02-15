@@ -1,6 +1,7 @@
 from django.db import models
 
 from employers.models import Address, RoutePolyline
+from employers.models import Point
 from territories.models import Territory
 
 class Employer(models.Model):
@@ -9,6 +10,23 @@ class Employer(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_employee_address_points(self):
+        employee_address_points = []
+        for site in self.site_set.all():
+            employee_address_points.extend(site.get_employee_address_points())
+        return employee_address_points
+
+    def get_average_site_address_point(self):
+        site_latitudes = list(map(lambda s: s.address.point.latitude,
+                                  self.site_set.all()))
+        site_longitudes = list(map(lambda s: s.address.point.longitude,
+                                   self.site_set.all()))
+
+        average_latitude = sum(site_latitudes) / len(site_latitudes)
+        average_longitude = sum(site_longitudes) / len(site_longitudes)
+
+        return Point(average_latitude, average_longitude)
 
     def get_direct_distances(self):
         direct_distances = []
@@ -22,10 +40,10 @@ class Employer(models.Model):
             cycling_distances.extend(site.get_cycling_distances())
         return cycling_distances
 
-    def get_route_polyline_points(self):
+    def get_route_polyline_points(self, enriched=True):
         route_polyline_points = []
         for site in self.site_set.all():
-            route_polyline_points.extend(site.get_route_polyline_points())
+            route_polyline_points.extend(site.get_route_polyline_points(enriched))
         return route_polyline_points
 
 class Site(models.Model):
@@ -44,6 +62,11 @@ class Site(models.Model):
                                                                address=address)
             self.employee_set.add(employee)
 
+    def get_employee_address_points(self):
+        return list(map(lambda e: [e.address.point.latitude,
+                                   e.address.point.longitude],
+                        self.employee_set.all()))
+
     def get_direct_distances(self):
         direct_distances = []
         for employee in self.employee_set.all():
@@ -56,10 +79,10 @@ class Site(models.Model):
             cycling_distances.append(employee.get_cycling_distance_from_site())
         return cycling_distances
 
-    def get_route_polyline_points(self):
+    def get_route_polyline_points(self, enriched=True):
         route_polyline_points = []
         for employee in self.employee_set.all():
-            route_polyline_points.extend(employee.get_route_polyline_points())
+            route_polyline_points.extend(employee.get_route_polyline_points(enriched))
         return route_polyline_points
 
 class Employee(models.Model):
@@ -87,11 +110,16 @@ class Employee(models.Model):
         self.save()
         return self.cycling_distance_from_site
 
-    def get_route_polyline_points(self):
-        #TODO get enriched points
+    def get_route_polyline_points(self, enriched=True):
         points = []
-        points.extend(RoutePolyline(self.get_route_polyline_to_site()).main_points)
-        points.extend(RoutePolyline(self.get_route_polyline_from_site()).main_points)
+        route_polyline_to_site = RoutePolyline(self.get_route_polyline_to_site())
+        route_polyline_from_site = RoutePolyline(self.get_route_polyline_from_site())
+        if enriched:
+            points.extend(route_polyline_to_site.enriched_points)
+            points.extend(route_polyline_from_site.enriched_points)
+        else:
+            points.extend(route_polyline_to_site.main_points)
+            points.extend(route_polyline_from_site.main_points)
         return list(map(lambda p: [p.latitude, p.longitude],
                         points))
 

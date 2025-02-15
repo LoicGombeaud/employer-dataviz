@@ -1,12 +1,15 @@
-<p>Employeur : {{ employer.name }}</p>
-<ul>
-{% for site in employer.site_set.all %}
-    <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}, {{ site.address }}</a></li>
-{% endfor %}
-</ul>
+{% extends "common/dataviz.html" %}
 
-<p>Statistiques distances</p>
-{% include "partials/distance_stats.html" with cycling_distances=employer.get_cycling_distances direct_distances=employer.get_direct_distances %}
-
-<p>Affichage carte </p>
-{% include "partials/map.html" with map_data=employer.get_route_polyline_points %}
+{% block entity %}
+    <p>Vue d'ensemble de l'employeur {{ employer.name }}</p>
+    <p>Voir le détail des sites :
+    <ul>
+    {% if employer.site_set.count > 0 %}
+        {% for site in employer.site_set.all %}
+            <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}, {{ site.address }}</a></li>
+        {% endfor %}
+    {% else %}
+            <li>(pas encore de site créé)</li>
+    {% endif %}
+    </ul>
+{% endblock %}
