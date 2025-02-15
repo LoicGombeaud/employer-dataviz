@@ -1,4 +1,4 @@
-<p>Employer #{{ employer.id }}: {{ employer.name }}</p>
+<p>Employeur : {{ employer.name }}</p>
 <ul>
 {% for site in employer.site_set.all %}
     <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}, {{ site.address }}</a></li>
@@ -6,7 +6,7 @@
 </ul>
 
 <p>Statistiques distances</p>
-{% include "partials/distance_stats.html" with distance_stats=employer.get_distance_stats %}
+{% include "partials/distance_stats.html" with cycling_distances=employer.get_cycling_distances direct_distances=employer.get_direct_distances %}
 
 <p>Affichage carte </p>
-{% include "partials/map.html" with map_data=employer.get_map_data %}
+{% include "partials/map.html" with map_data=employer.get_route_polyline_points %}

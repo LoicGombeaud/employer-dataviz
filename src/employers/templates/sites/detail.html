@@ -1,7 +1,9 @@
-<p>Site {{ site.employer.name }} : {{ site.name }}, {{ site.address }}</p>
+<p>Employeur : <a href="{% url 'employers:detail' site.employer.id %}">{{ site.employer.name }}</a></p>
+<p>Site : {{ site.name }}</p>
+<p>Adresse : {{ site.address }}</p>
 
 <p>Statistiques distances</p>
-{% include "partials/distance_stats.html" with distance_stats=site.get_distance_stats %}
+{% include "partials/distance_stats.html" with cycling_distances=site.get_cycling_distances direct_distances=site.get_direct_distances %}
 
 <p>Affichage carte </p>
-{% include "partials/map.html" with map_data=site.get_map_data %}
+{% include "partials/map.html" with map_data=site.get_route_polyline_points %}
