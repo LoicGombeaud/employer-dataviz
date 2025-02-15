@@ -1,5 +1,5 @@
 """
-ASGI config for employer_dataviz project.
+ASGI config for dataviz project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'employer_dataviz.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dataviz.settings')
 
 application = get_asgi_application()
