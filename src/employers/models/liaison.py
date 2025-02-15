@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from employers.models import Employer, Territory
+from employers.models import Employer
+from territories.models import Territory
 
 class EmployerLiaison(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

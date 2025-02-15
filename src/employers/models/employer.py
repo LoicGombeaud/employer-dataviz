@@ -1,5 +1,7 @@
 from django.db import models
-from employers.models import Address, Territory
+
+from employers.models import Address
+from territories.models import Territory
 
 class Employer(models.Model):
     name = models.CharField(max_length=100)
