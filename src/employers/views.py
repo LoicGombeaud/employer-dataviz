@@ -2,8 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 
-#TODO remove
-import logging
 
 from .models import Employer, Site
 
