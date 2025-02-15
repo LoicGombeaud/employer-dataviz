@@ -37,9 +37,18 @@ def get_employer_by_site_id(request, site_id):
 @permission_required("employers.view_employer", fn=get_employer_by_site_id)
 def site(request, site_id):
     site = get_object_or_404(Site, id=site_id)
+    context = {
+        "site": site,
+    }
+    return render(request, "sites/detail.html", context)
+
+@permission_required("employers.view_employer", fn=get_employer_by_site_id)
+def edit_site(request, site_id):
+    site = get_object_or_404(Site, id=site_id)
     try:
         employee_street_addresses_list = request.POST["employee_street_addresses"].splitlines()
         site.update_addresses(employee_street_addresses_list)
+        return HttpResponseRedirect(reverse("employers:edit_site", args=site_id))
     except:
         pass
     employee_street_addresses_list = map(lambda e: e.address.street_address,
@@ -48,4 +57,4 @@ def site(request, site_id):
         "site": site,
         "employee_street_addresses": "\n".join(employee_street_addresses_list),
     }
-    return render(request, "sites/detail.html", context)
+    return render(request, "sites/edit.html", context)

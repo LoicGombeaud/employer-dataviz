@@ -18,6 +18,12 @@ class Employer(models.Model):
     def __str__(self):
         return self.name
 
+    def get_distance_stats(self):
+        return "TODO"
+
+    def get_map_data(self):
+        return "TODO"
+
 class EmployerLiaison(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employer = models.ForeignKey(Employer, on_delete=models.CASCADE)

@@ -1,0 +1,12 @@
+<p>Site {{ site.employer.name }} : {{ site.name }}, {{ site.address }}</p>
+
+<form action="{% url 'employers:edit_site' site.id %}" method="post">
+{% csrf_token %}
+  <fieldset>
+    <legend>Adresse du site :</legend>
+    <input type="text" name="site_street_address" value="{{ site.address }}">
+    <legend>Adresses des employé⋅es (une par ligne) :</legend>
+    <textarea name="employee_street_addresses">{{ employee_street_addresses }}</textarea>
+  </fieldset>
+  <input type="submit" value="Enregistrer les adresses">
+</form>

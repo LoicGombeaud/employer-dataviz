@@ -4,3 +4,9 @@
     <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}, {{ site.address }}</a></li>
 {% endfor %}
 </ul>
+
+<p>Statistiques distances</p>
+{% include "partials/distance_stats.html" with distance_stats=employer.get_distance_stats %}
+
+<p>Affichage carte </p>
+{% include "partials/map.html" with map_data=employer.get_map_data %}
