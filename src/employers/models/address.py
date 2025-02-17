@@ -1,6 +1,7 @@
 import openrouteservice
 import os
 from django.db import models
+from geopy import BANFrance
 
 from employers.models import Point
 
@@ -29,10 +30,9 @@ class Address(models.Model):
                      self.longitude)
 
     def _geocode(self):
-        pelias_result = ors_client.pelias_search(text=self.street_address)
-        coordinates = pelias_result["features"][0]["geometry"]["coordinates"]
-        self.latitude = coordinates[1]
-        self.longitude = coordinates[0]
+        location = BANFrance().geocode(self.street_address)
+        self.latitude = location.latitude
+        self.longitude = location.longitude
         self.save()
 
     def direct_distance_from(self, other_address):
