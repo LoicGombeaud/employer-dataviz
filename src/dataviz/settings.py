@@ -136,3 +136,10 @@ AUTHENTICATION_BACKENDS = [
     'rules.permissions.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Route polyline enrichment settings
+
+ROUTE_POLYLINE_ENRICHMENT = {
+    'ENABLED': True,
+    'DISTANCE': 3,
+}

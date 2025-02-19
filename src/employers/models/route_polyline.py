@@ -1,17 +1,19 @@
 import polyline
+from django.conf import settings
 
 from employers.models import Point
 
 
+enrichment_distance = settings.ROUTE_POLYLINE_ENRICHMENT["DISTANCE"]
+
 class RoutePolyline():
-    ENRICHMENT_DISTANCE = 3
 
     def __init__(self, base64):
         self.main_points = list(map(lambda p: Point(p),
                                     polyline.decode(base64)))
 
     @property
-    def enriched_points(self, enrichment_distance=ENRICHMENT_DISTANCE):
+    def enriched_points(self, enrichment_distance=enrichment_distance):
         enriched_points = []
 
         for i in range(len(self.main_points) - 1):

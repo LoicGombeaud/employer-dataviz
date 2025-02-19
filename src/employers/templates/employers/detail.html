@@ -6,7 +6,7 @@
     <ul>
     {% if employer.site_set.count > 0 %}
         {% for site in employer.site_set.all %}
-            <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}, {{ site.address }}</a></li>
+            <li><a href="{% url 'employers:site' site.id %}">{{ site.name }}</a></li>
         {% endfor %}
     {% else %}
             <li>(pas encore de site créé)</li>

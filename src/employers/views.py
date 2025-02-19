@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -6,6 +7,8 @@ from rules.contrib.views import permission_required, objectgetter
 
 
 from .models import Employer, Site
+
+enrich = settings.ROUTE_POLYLINE_ENRICHMENT["ENABLED"]
 
 def index(request):
     employers_list = list(filter(lambda e: get_user(request).has_perm("employers.view_employer", e),
@@ -19,7 +22,6 @@ def index(request):
     context = {
         "territory_to_employers_dict": territory_to_employers_dict,
     }
-    print(territory_to_employers_dict)
     return render(request, "employers/index.html", context)
 
 @permission_required("employers.view_employer", fn=objectgetter(Employer, "employer_id"))
@@ -27,16 +29,15 @@ def detail(request, employer_id):
     employer = Employer.objects.get(id=employer_id)
     context = {
         "employer": employer,
-        "direct_distances": employer.get_direct_distances(),
-        "cycling_distances": employer.get_cycling_distances(),
+        "direct_distances": employer.direct_distances,
+        "cycling_distances": employer.cycling_distances,
         "map_data": {
-            "map_center": employer.get_average_site_address_point(),
-            "route_polyline_point_coordinates": employer.get_route_polyline_points(enriched=True),
+            "map_center": employer.average_site_address_point,
+            "route_polyline_point_coordinates": employer.get_route_polyline_points(enriched=enrich),
             "employee_address_point_coordinates": employer.get_employee_address_points(),
             "markers": [s.address.point for s in employer.site_set.all()]
         },
     }
-    print(employer.get_average_site_address_point().latitude)
     return render(request, "employers/detail.html", context)
 
 def get_employer_by_site_id(request, site_id):
@@ -48,11 +49,11 @@ def site(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     context = {
         "site": site,
-        "direct_distances": site.get_direct_distances(),
-        "cycling_distances": site.get_cycling_distances(),
+        "direct_distances": site.direct_distances,
+        "cycling_distances": site.cycling_distances,
         "map_data": {
             "map_center": site.address.point,
-            "route_polyline_point_coordinates": site.get_route_polyline_points(enriched=True),
+            "route_polyline_point_coordinates": site.get_route_polyline_points(enriched=enrich),
             "employee_address_point_coordinates": site.get_employee_address_points(),
             "markers": [site.address.point]
         }

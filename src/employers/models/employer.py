@@ -17,7 +17,8 @@ class Employer(models.Model):
             employee_address_points.extend(site.get_employee_address_points())
         return employee_address_points
 
-    def get_average_site_address_point(self):
+    @property
+    def average_site_address_point(self):
         site_latitudes = list(map(lambda s: s.address.point.latitude,
                                   self.site_set.all()))
         site_longitudes = list(map(lambda s: s.address.point.longitude,
@@ -28,16 +29,18 @@ class Employer(models.Model):
 
         return Point(average_latitude, average_longitude)
 
-    def get_direct_distances(self):
+    @property
+    def direct_distances(self):
         direct_distances = []
         for site in self.site_set.all():
-            direct_distances.extend(site.get_direct_distances())
+            direct_distances.extend(site.direct_distances)
         return direct_distances
 
-    def get_cycling_distances(self):
+    @property
+    def cycling_distances(self):
         cycling_distances = []
         for site in self.site_set.all():
-            cycling_distances.extend(site.get_cycling_distances())
+            cycling_distances.extend(site.cycling_distances)
         return cycling_distances
 
     def get_route_polyline_points(self, enriched=True):
@@ -62,26 +65,29 @@ class Site(models.Model):
                                                                address=address)
             self.employee_set.add(employee)
 
-    def get_employee_address_points(self):
+    #TODO remove magic number, set default elsewhere
+    def get_employee_address_points(self, max_distance=15*1000):
         return list(map(lambda e: [e.address.point.latitude,
                                    e.address.point.longitude],
+                        self.employee_set.filter(direct_distance_from_site__lte=max_distance)))
+
+    @property
+    def direct_distances(self):
+        return list(map(lambda e: e.direct_distance_from_site,
                         self.employee_set.all()))
 
-    def get_direct_distances(self):
-        direct_distances = []
-        for employee in self.employee_set.all():
-            direct_distances.append(employee.get_direct_distance_from_site())
-        return direct_distances
-
-    def get_cycling_distances(self):
+    @property
+    def cycling_distances(self):
         cycling_distances = []
         for employee in self.employee_set.all():
-            cycling_distances.append(employee.get_cycling_distance_from_site())
+            cycling_distances.append(employee.cycling_distance_from_site)
         return cycling_distances
 
-    def get_route_polyline_points(self, enriched=True):
+    #TODO remove magic number, set default elsewhere
+    def get_route_polyline_points(self, enriched=True, max_distance=15*1000):
         route_polyline_points = []
-        for employee in self.employee_set.all():
+        close_enough_employees = self.employee_set.filter(direct_distance_from_site__lte=max_distance)
+        for employee in close_enough_employees:
             route_polyline_points.extend(employee.get_route_polyline_points(enriched))
         return route_polyline_points
 
@@ -98,22 +104,18 @@ class Employee(models.Model):
     def __str__(self):
         return str(self.address)
 
-    def get_direct_distance_from_site(self):
-        if self.direct_distance_from_site is None:
-            self.direct_distance_from_site = self.address.direct_distance_from(self.site.address)
-        self.save()
-        return self.direct_distance_from_site
-
-    def get_cycling_distance_from_site(self):
-        if self.cycling_distance_from_site is None:
-            self.cycling_distance_from_site = self.address.cycling_distance_from(self.site.address)
-        self.save()
-        return self.cycling_distance_from_site
+    def save(self, **kwargs):
+        self.direct_distance_from_site = self.address.direct_distance_from(self.site.address)
+        self.cycling_distance_from_site = self.address.cycling_distance_from(self.site.address)
+        self.route_polyline_to_site = self.address.route_polyline_to(self.site.address)
+        self.route_polyline_from_site = self.address.route_polyline_from(self.site.address)
+        super().save(self, **kwargs)
 
     def get_route_polyline_points(self, enriched=True):
+        #TODO cache result
         points = []
-        route_polyline_to_site = RoutePolyline(self.get_route_polyline_to_site())
-        route_polyline_from_site = RoutePolyline(self.get_route_polyline_from_site())
+        route_polyline_to_site = RoutePolyline(self.route_polyline_to_site)
+        route_polyline_from_site = RoutePolyline(self.route_polyline_from_site)
         if enriched:
             points.extend(route_polyline_to_site.enriched_points)
             points.extend(route_polyline_from_site.enriched_points)
@@ -122,15 +124,3 @@ class Employee(models.Model):
             points.extend(route_polyline_from_site.main_points)
         return list(map(lambda p: [p.latitude, p.longitude],
                         points))
-
-    def get_route_polyline_to_site(self):
-        if self.route_polyline_to_site is None:
-            self.route_polyline_to_site = self.address.route_polyline_to(self.site.address)
-        self.save()
-        return self.route_polyline_to_site
-
-    def get_route_polyline_from_site(self):
-        if self.route_polyline_from_site is None:
-            self.route_polyline_from_site = self.site.address.route_polyline_to(self.address)
-        self.save()
-        return self.route_polyline_from_site
