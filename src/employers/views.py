@@ -60,7 +60,7 @@ def site(request, site_id):
     }
     return render(request, "sites/detail.html", context)
 
-@permission_required("employers.view_employer", fn=get_employer_by_site_id)
+@permission_required("employers.change_employer", fn=get_employer_by_site_id)
 def edit_site(request, site_id):
     site = get_object_or_404(Site, id=site_id)
     try:
