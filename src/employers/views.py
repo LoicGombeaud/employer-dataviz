@@ -1,14 +1,13 @@
 from django.conf import settings
 from django.contrib.auth import get_user
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
+from django.urls import reverse
 from rules.contrib.views import permission_required, objectgetter
 
 
 from .models import Employer, Site
-
-enrich = settings.ROUTE_POLYLINE_ENRICHMENT["ENABLED"]
 
 def index(request):
     employers_list = list(filter(lambda e: get_user(request).has_perm("employers.view_employer", e),
@@ -33,8 +32,8 @@ def detail(request, employer_id):
         "cycling_distances": employer.cycling_distances,
         "map_data": {
             "map_center": employer.average_site_address_point,
-            "route_polyline_point_coordinates": employer.get_route_polyline_points(enriched=enrich),
-            "employee_address_point_coordinates": employer.get_employee_address_points(),
+            "route_polyline_segments": employer.route_polyline_segments,
+            "employee_address_point_lat_lngs": employer.employee_address_points,
             "markers": [s.address.point for s in employer.site_set.all()]
         },
     }
@@ -53,8 +52,8 @@ def site(request, site_id):
         "cycling_distances": site.cycling_distances,
         "map_data": {
             "map_center": site.address.point,
-            "route_polyline_point_coordinates": site.get_route_polyline_points(enriched=enrich),
-            "employee_address_point_coordinates": site.get_employee_address_points(),
+            "route_polyline_segments": site.route_polyline_segments,
+            "employee_address_point_lat_lngs": site.employee_address_points,
             "markers": [site.address.point]
         }
     }
@@ -66,9 +65,10 @@ def edit_site(request, site_id):
     try:
         employee_street_addresses_list = request.POST["employee_street_addresses"].splitlines()
         site.update_addresses(employee_street_addresses_list)
-        return HttpResponseRedirect(reverse("employers:edit_site", args=site_id))
-    except:
-        pass
+        return HttpResponseRedirect(reverse("employers:site", args=[site_id]))
+    except Exception as e:
+        print(e)
+        #raise e
     employee_street_addresses_list = map(lambda e: e.address.street_address,
                                          site.employee_set.all())
     context = {

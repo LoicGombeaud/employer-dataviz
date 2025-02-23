@@ -17,6 +17,8 @@
   </script>
   <script src="{% static "scripts/leaflet-heat.js" %}">
   </script>
+  <script src="{% static "scripts/geolib.js" %}">
+  </script>
   <style>
       #map { width: 800px; height: 600px; }
       body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
@@ -50,8 +52,8 @@
                  ],
                  14);
 
-      var routePointCoordinates = {{ map_data.route_polyline_point_coordinates }};
-      var employeeAddressPointCoordinates = {{ map_data.employee_address_point_coordinates }};
+      var segments = {{ map_data.route_polyline_segments }};
+      var employeeAddressPointLatLngs = {{ map_data.employee_address_point_lat_lngs }};
       {% endautoescape %}
 
       var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -61,12 +63,47 @@
       var heatmapOptions = {
           'radius': 10,
           'blur': 10,
-          'max': employeeAddressPointCoordinates.length
+          'max': employeeAddressPointLatLngs.length
       };
       var heat = L.heatLayer(
-        routePointCoordinates,
+        [],
         heatmapOptions
       ).addTo(map);
+
+      function enrichSegment(segment, enrichmentDistance) {
+        /*
+           - get direct distance between segments points
+           - if shorter than enrichment distance, return segment
+           - if longer than enrichment distance, return array containing segment start and end points, + intermediary points
+        */
+        var distance = geolib.getDistance(segment[0], segment[1]);
+
+        if (distance <= enrichmentDistance) {
+          return segment;
+        }
+
+        var bearing = geolib.getRhumbLineBearing(segment[0], segment[1]);
+        var interPoints = Array(Math.floor(distance / enrichmentDistance));
+        var step = distance / (interPoints.length + 1);
+        for (var i = 0, len = interPoints.length; i < len; i++) {
+          var p = geolib.computeDestinationPoint(segment[0], step * (i+1), bearing);
+          interPoints[i] = [p.longitude, p.latitude];
+        }
+        return segment.concat(interPoints);
+      }
+
+      for (var i = 0, len = segments.length; i < len; i++) {
+        var enrichedSegment = enrichSegment(segments[i], 5);
+        enrichedSegment.map((point) => heat.addLatLng(point));
+      }
+
+      ['radius', 'blur', 'max'].forEach((option) => {
+        document.getElementById(option).addEventListener('input', function() {
+          var options = {};
+          options[option] = parseInt(this.value);
+          heat.setOptions(options);
+        });
+      });
 
       {% for marker in map_data.markers %}
         L.marker(
@@ -80,17 +117,25 @@
         'radius': 1,
         'color': 'red'
       };
-      {% for coordinates in map_data.employee_address_point_coordinates %}
+      {% for lat_lng in map_data.employee_address_point_lat_lngs %}
         L.circleMarker(
           [
-            {{ coordinates.0 | unlocalize }},
-            {{ coordinates.1 | unlocalize }}
+            {{ lat_lng.0 | unlocalize }},
+            {{ lat_lng.1 | unlocalize }}
           ],
         circleMarkerOptions).addTo(map)
       {% endfor %}
     </script>
+  {% endblock %}
+
+  {% block distance_stats %}
     <script src="{% static "scripts/bar-chart.js" %}">
     </script>
+    <p>Statistiques distances</p>
+    <div style="width: 800px;">
+      <canvas id="distancesBarChart">
+      </canvas>
+    </div>
     <script>
       var directDistances = {{ direct_distances }};
       var cyclingDistances = {{ cycling_distances }};
