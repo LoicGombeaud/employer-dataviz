@@ -6,7 +6,9 @@ from geopy import BANFrance
 from employers.models import Point
 
 
-ors_client = openrouteservice.Client(key=os.environ["ORS_API_KEY"])
+#TODO set URL in settings
+#ors_client = openrouteservice.Client(key=os.environ["ORS_API_KEY"])
+ors_client = openrouteservice.Client(base_url="http://localhost:8080/ors")
 
 class Address(models.Model):
     street_address = models.CharField(max_length=100,
