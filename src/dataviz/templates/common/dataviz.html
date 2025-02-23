@@ -33,14 +33,13 @@
   {% block entity %}
   {% endblock %}
 
-  {% block distance_stats %}
-    <p>Statistiques distances</p>
-    <div style="width: 800px;">
-      <canvas id="distancesBarChart">
-      </canvas>
-  {% endblock %}
-
   {% block map %}
+    <p>Radius</p>
+    <input id="radius" type="range" value="10" min="1" max="10">
+    <p>Blur</p>
+    <input id="blur" type="range" value="10" min="1" max="10">
+    <p>Max</p>
+    <input id="max" type="range" value="20" min="1" max="50">
     <div id="map"></div>
     <script>
       {% autoescape off %}
