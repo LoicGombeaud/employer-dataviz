@@ -9,7 +9,7 @@ class Employer(models.Model):
     territory = models.ForeignKey(Territory, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.territory.name + " - " + self.name
 
     @property
     def employee_address_points(self):
@@ -65,7 +65,7 @@ class Site(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.employer.name + " - " + self.name
+        return self.employer.territory.name + " - " + self.employer.name + " - " + self.name
 
     def update_addresses(self, employee_street_addresses_list):
         self.employee_set.all().delete()
