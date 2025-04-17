@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-tox=*ko$79#)2z1y!&$p71c5!^%6#d(#(5@2b*%h$v3w=1d77%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'dataviz.loicgombeaud.com',
+]
 
 
 # Application definition
