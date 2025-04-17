@@ -41,6 +41,9 @@ livenessProbe:
   httpGet:
     path: /
     port: http
+    httpHeaders:
+      - name: host
+        value: dataviz.loicgombeaud.com
 readinessProbe:
   httpGet:
     path: /
