@@ -1,0 +1,19 @@
+name: 'Build, push, deploy'
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-push-deploy:
+    uses: LoicGombeaud/workflows/.github/workflows/build-push-deploy.yaml@main
+    with:
+      image-repository: employer_dataviz
+      image-tags: latest
+      keel-fqdn: keel.velo-cite.org
+      keel-user: employer
+      docker-context-path: .
+    secrets:
+      keel-password: ${{ secrets.KEEL_PASSWORD }}
