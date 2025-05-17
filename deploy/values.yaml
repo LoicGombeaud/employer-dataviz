@@ -4,6 +4,8 @@ image:
   repository: ghcr.io/loicgombeaud/employer-dataviz
   pullPolicy: IfNotPresent
   tag: latest
+annotations:
+  keel.sh/policy: force
 
 imagePullSecrets: []
 nameOverride: ""
