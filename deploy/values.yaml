@@ -52,6 +52,9 @@ readinessProbe:
   httpGet:
     path: /
     port: http
+    httpHeaders:
+      - name: host
+        value: dataviz.loicgombeaud.com
 
 autoscaling:
   enabled: false
