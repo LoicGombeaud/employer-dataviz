@@ -139,3 +139,10 @@ AUTHENTICATION_BACKENDS = [
     'rules.permissions.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# CSRF trusted origins
+# https://docs.djangoproject.com/en/5.2/ref/settings/#std-setting-CSRF_TRUSTED_ORIGINS
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://dataviz.loicgombeaud.com'
+]
